@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+{% block title %}Загрузить STL — STL Library{% endblock %}
+{% block head %}
+<style>
+.upload-page{max-width:620px;margin:40px auto;padding:0 24px}
+.upload-title{font-size:20px;font-weight:700;margin-bottom:6px}
+.upload-sub{font-size:13px;color:var(--text2);margin-bottom:28px}
+.drop-zone{
+  border:2px dashed var(--border);
+  border-radius:12px;
+  background:var(--bg1);
+  padding:60px 40px;
+  text-align:center;
+  cursor:pointer;
+  transition:.2s;
+  position:relative;
+}
+.drop-zone.drag-over{border-color:var(--accent2);background:#0f2030;box-shadow:0 0 0 3px rgba(0,120,212,.2)}
+.drop-icon{font-size:48px;display:block;margin-bottom:16px;opacity:.4}
+.drop-text{font-size:15px;font-weight:600;color:var(--text);margin-bottom:6px}
+.drop-sub{font-size:12px;color:var(--text2)}
+.drop-input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.drop-input::-webkit-file-upload-button{display:none}
+
+.file-chosen{margin-top:20px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:12px 16px;display:flex;align-items:center;gap:10px;font-size:13px}
+.file-chosen-name{flex:1;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.file-chosen-size{color:var(--text2);font-size:12px;white-space:nowrap}
+
+.progress-section{margin-top:20px}
+.progress-label{display:flex;justify-content:space-between;font-size:12px;color:var(--text2);margin-bottom:6px}
+.upload-btn{width:100%;margin-top:18px;padding:12px;font-size:14px;justify-content:center}
+
+.result-box{margin-top:20px;padding:16px;border-radius:var(--radius);border:1px solid var(--border);display:none}
+.result-box.ok{border-color:#3fb950;background:#1a2e1a;color:#3fb950}
+.result-box.err{border-color:var(--red);background:#2e1a1a;color:var(--red)}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="upload-page">
+  <div class="upload-title">⬆ Загрузить STL файл</div>
+  <div class="upload-sub">Файл будет сохранён на сервере и добавлен в библиотеку с автоматическим описанием</div>
+
+  <div class="drop-zone" id="drop-zone">
+    <input type="file" class="drop-input" id="file-input" accept=".stl">
+    <span class="drop-icon">◈</span>
+    <div class="drop-text">Перетащите STL файл сюда</div>
+    <div class="drop-sub">или нажмите для выбора файла</div>
+  </div>
+
+  <div class="file-chosen" id="file-chosen" style="display:none">
+    <span>📄</span>
+    <span class="file-chosen-name" id="chosen-name"></span>
+    <span class="file-chosen-size" id="chosen-size"></span>
+  </div>
+
+  <div class="progress-section" id="progress-section" style="display:none">
+    <div class="progress-label">
+      <span>Загрузка и обработка…</span>
+      <span id="pct-label">0%</span>
+    </div>
+    <div class="progress-wrap"><div class="progress-bar" id="up-bar" style="width:0%"></div></div>
+  </div>
+
+  <button class="btn btn-success upload-btn" id="upload-btn" disabled onclick="doUpload()">
+    ⬆ Загрузить STL
+  </button>
+
+  <div class="result-box" id="result-box"></div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const dropZone  = document.getElementById('drop-zone');
+const fileInput = document.getElementById('file-input');
+const uploadBtn = document.getElementById('upload-btn');
+let selectedFile = null;
+
+// Drag & Drop
+['dragenter','dragover'].forEach(e => dropZone.addEventListener(e, ev => {
+  ev.preventDefault(); dropZone.classList.add('drag-over');
+}));
+['dragleave','drop'].forEach(e => dropZone.addEventListener(e, ev => {
+  ev.preventDefault(); dropZone.classList.remove('drag-over');
+}));
+dropZone.addEventListener('drop', ev => {
+  const f = ev.dataTransfer.files[0];
+  if (f) setFile(f);
+});
+fileInput.addEventListener('change', () => {
+  if (fileInput.files[0]) setFile(fileInput.files[0]);
+});
+
+function setFile(f) {
+  if (!f.name.toLowerCase().endsWith('.stl')) {
+    toast('Только .stl файлы!', false); return;
+  }
+  selectedFile = f;
+  document.getElementById('file-chosen').style.display = 'flex';
+  document.getElementById('chosen-name').textContent = f.name;
+  document.getElementById('chosen-size').textContent = (f.size / 1024).toFixed(1) + ' KB';
+  uploadBtn.disabled = false;
+}
+
+function doUpload() {
+  if (!selectedFile) return;
+  uploadBtn.disabled = true;
+  document.getElementById('progress-section').style.display = 'block';
+
+  const fd = new FormData();
+  fd.append('stl_file', selectedFile);
+  const xhr = new XMLHttpRequest();
+
+  xhr.upload.onprogress = e => {
+    if (e.lengthComputable) {
+      const pct = Math.round(e.loaded / e.total * 100);
+      document.getElementById('up-bar').style.width = pct + '%';
+      document.getElementById('pct-label').textContent = pct + '%';
+    }
+  };
+
+  xhr.onload = () => {
+    const res = JSON.parse(xhr.responseText);
+    const box = document.getElementById('result-box');
+    box.style.display = 'block';
+    if (res.ok) {
+      box.className = 'result-box ok';
+      box.innerHTML = `✓ ${res.msg}${res.model_id ? ` — <a href="/model/${res.model_id}" style="color:inherit;text-decoration:underline">Открыть карточку</a>` : ''}`;
+      toast(res.msg, true);
+    } else {
+      box.className = 'result-box err';
+      box.textContent = '✗ ' + res.msg;
+      toast(res.msg, false);
+      uploadBtn.disabled = false;
+    }
+  };
+
+  xhr.onerror = () => {
+    toast('Ошибка сети', false);
+    uploadBtn.disabled = false;
+  };
+
+  xhr.open('POST', '/upload');
+  xhr.send(fd);
+}
+</script>
+{% endblock %}

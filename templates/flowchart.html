@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>STL Library — Блок-схема</title>
+<style>
+  body { margin: 0; background: #0d1117; font-family: "Segoe UI", sans-serif; }
+  .wrap { padding: 24px; }
+  h1 { color: #e6edf3; font-size: 18px; margin-bottom: 24px; }
+  svg text { font-family: "Segoe UI", sans-serif; }
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>◈ STL Asset Manager — Подробная блок-схема</h1>
+<svg width="1320" height="1780" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <!-- Arrow markers -->
+  <marker id="arr" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+    <polygon points="0 0, 10 3.5, 0 7" fill="#8b949e"/>
+  </marker>
+  <marker id="arr-accent" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+    <polygon points="0 0, 10 3.5, 0 7" fill="#4fc3f7"/>
+  </marker>
+  <marker id="arr-green" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+    <polygon points="0 0, 10 3.5, 0 7" fill="#238636"/>
+  </marker>
+  <marker id="arr-red" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+    <polygon points="0 0, 10 3.5, 0 7" fill="#f85149"/>
+  </marker>
+  <marker id="arr-orange" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+    <polygon points="0 0, 10 3.5, 0 7" fill="#f0883e"/>
+  </marker>
+  <!-- Filters -->
+  <filter id="glow">
+    <feGaussianBlur stdDeviation="2" result="blur"/>
+    <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+</defs>
+
+<!-- ══════════════════════════════════════════════════════════════ -->
+<!-- LEGEND -->
+<!-- ══════════════════════════════════════════════════════════════ -->
+<rect x="10" y="10" width="340" height="130" rx="8" fill="#161b22" stroke="#30363d" stroke-width="1"/>
+<text x="20" y="32" fill="#8b949e" font-size="11" font-weight="700" letter-spacing="1">ЛЕГЕНДА</text>
+<rect x="20" y="42" width="20" height="12" rx="3" fill="#0078d4" opacity=".85"/>
+<text x="48" y="53" fill="#e6edf3" font-size="11">Пользователь / браузер</text>
+<rect x="20" y="62" width="20" height="12" rx="3" fill="#238636" opacity=".85"/>
+<text x="48" y="73" fill="#e6edf3" font-size="11">Flask роут / сервер</text>
+<rect x="20" y="82" width="20" height="12" rx="3" fill="#1a3a2a" stroke="#3fb950" stroke-width="1"/>
+<text x="48" y="93" fill="#e6edf3" font-size="11">БД / хранилище</text>
+<rect x="20" y="102" width="20" height="12" rx="3" fill="#2e1e0a" stroke="#f0883e" stroke-width="1"/>
+<text x="48" y="113" fill="#e6edf3" font-size="11">Фоновый поток</text>
+<polygon points="20,128 30,122 40,128 30,134" fill="none" stroke="#bc8cff" stroke-width="1.5"/>
+<text x="48" y="133" fill="#e6edf3" font-size="11">Условие / решение</text>
+
+<!-- ══════════════════════════════════════════════════════════════ -->
+<!-- START -->
+<!-- ══════════════════════════════════════════════════════════════ -->
+<ellipse cx="660" cy="30" rx="80" ry="20" fill="#0078d4" opacity=".9"/>
+<text x="660" y="35" fill="#fff" font-size="13" font-weight="700" text-anchor="middle">СТАРТ</text>
+<line x1="660" y1="50" x2="660" y2="75" stroke="#8b949e" stroke-width="1.5" marker-end="url(#arr)"/>
+
+<!-- app.py: Flask init -->
+<rect x="530" y="75" width="260" height="50" rx="8" fill="#161b22" stroke="#238636" stroke-width="1.5"/>
+<text x="660" y="97" fill="#e6edf3" font-size="12" font-weight="600" text-anchor="middle">app.py — Запуск сервера</text>
+<text x="660" y="114" fill="#8b949e" font-size="10" text-anchor="middle">Flask(host=0.0.0.0, port=5000, threaded=True)</text>
+
+<line x1="660" y1="125" x2="660" y2="152" stroke="#8b949e" stroke-width="1.5" marker-end="url(#arr)"/>
+
+<!-- DB init -->
+<rect x="530" y="152" width="260" height="50" rx="8" fill="#1a3a2a" stroke="#3fb950" stroke-width="1.5"/>
+<text x="660" y="174" fill="#e6edf3" font-size="12" font-weight="600" text-anchor="middle">get_engine() → SQLite</text>
+<text x="660" y="191" fill="#8b949e" font-size="10" text-anchor="middle">create_all() + _auto_migrate()</text>
+
+<line x1="660" y1="202" x2="660" y2="232" stroke="#8b949e" stroke-width="1.5" marker-end="url(#arr)"/>
+
+<!-- Print URLs -->
+<rect x="530" y="232" width="260" height="38" rx="8" fill="#161b22" stroke="#30363d" stroke-width="1.2"/>
+<text x="660" y="249" fill="#e6edf3" font-size="11" text-anchor="middle">Вывод URL в консоль:</text>
+<text x="660" y="263" fill="#4fc3f7" font-size="10" text-anchor="middle">localhost:5000  ·  {local_ip}:5000</text>
+
+<line x1="660" y1="270" x2="660" y2="298" stroke="#8b949e" stroke-width="1.5" marker-end="url(#arr)"/>
+
+<!-- ══════════════════════════════════════════════════════════════ -->
+<!-- BROWSER REQUEST -->
+<!-- ══════════════════════════════════════════════════════════════ -->
+<rect x="490" y="298" width="340" height="40" rx="8" fill="#0f2a3a" stroke="#0078d4" stroke-width="1.5"/>
+<text x="660" y="323" fill="#e6edf3" font-size="12" font-weight="600" text-anchor="middle">🌐 Браузер → HTTP запрос на сервер</text>
+
+<!-- ROUTE DECISION -->
+<line x1="660" y1="338" x2="660" y2="368" stroke="#8b949e" stroke-width="1.5" marker-end="url(#arr)"/>
+<polygon points="660,368 750,410 660,452 570,410" fill="#161b22" stroke="#bc8cff" stroke-width="1.5"/>
+<text x="660" y="405" fill="#e6edf3" font-size="11" font-weight="600" text-anchor="middle">Роут?</text>
+<text x="660" y="420" fill="#8b949e" font-size="9" text-anchor="middle">URL path</text>
+
+<!-- ══════════════ BRANCH: / ══════════════ -->
+<line x1="570" y1="410" x2="180" y2="410" stroke="#8b949e" stroke-width="1.2" marker-end="url(#arr)"/>
+<text x="370" y="403" fill="#8b949e" font-size="10" text-anchor="middle">GET /</text>
+
+<rect x="40" y="388" width="140" height="44" rx="8" fill="#161b22" stroke="#238636" stroke-width="1.5"/>
+<text x="110" y="408" fill="#e6edf3" font-size="11" font-weight="600" text-anchor="middle">Библиотека</text>
+<text x="110" y="423" fill="#8b949e" font-size="9" text-anchor="middle">index()</text>
+
+<line x1="110" y1="432" x2="110" y2="465" stroke="#8b949e" stroke-width="1.2" marker-end="url(#arr)"/>
+
+<rect x="30" y="465" width="160" height="55" rx="6" fill="#1a3a2a" stroke="#3fb950" stroke-width="1.2"/>
+<text x="110" y="484" fill="#e6edf3" font-size="10" font-weight="600" text-anchor="middle">all_models() / search_models()</text>
+<text x="110" y="499" fill="#8b949e" font-size="9" text-anchor="middle">sort, filter, watertight</text>
+<text x="110" y="512" fill="#8b949e" font-size="9" text-anchor="middle">category, size range</text>
+
+<line x1="110" y1="520" x2="110" y2="550" stroke="#8b949e" stroke-width="1.2" marker-end="url(#arr)"/>
+<rect x="30" y="550" width="160" height="35" rx="6" fill="#0f2a3a" stroke="#0078d4" stroke-width="1.2"/>
+<text x="110" y="572" fill="#e6edf3" font-size="10" text-anchor="middle">render index.html</text>
+
+<!-- ══════════════ BRANCH: /model/id ══════════════ -->
+<line x1="660" y1="452" x2="660" y2="480" stroke="#8b949e" stroke-width="1.2" marker-end="url(#arr)"/>
+<text x="670" y="470" fill="#8b949e" font-size="9">GET /model/id</text>
+
+<rect x="575" y="480" width="170" height="44" rx="8" fill="#161b22" stroke="#238636" stroke-width="1.5"/>
+<text x="660" y="500" fill="#e6edf3" font-size="11" font-weight="600" text-anchor="middle">Карточка модели</text>
+<text x="660" y="516" fill="#8b949e" font-size="9" text-anchor="middle">model_detail()</text>
+
+<line x1="660" y1="524" x2="660" y2="554" stroke="#8b949e" stroke-width="1.2" marker-end="url(#arr)"/>
+<rect x="565" y="554" width="190" height="35" rx="6" fill="#0f2a3a" stroke="#0078d4" stroke-width="1.2"/>
+<text x="660" y="576" fill="#e6edf3" font-size="10" text-anchor="middle">render model.html</text>
+
+<!-- ══════════════ BRANCH: /model/id/edit ══════════════ -->
+<line x1="750" y1="410" x2="960" y2="410" stroke="#8b949e" stroke-width="1.2"/>
+<text x="850" y="403" fill="#8b949e" font-size="10" text-anchor="middle">POST /model/id/edit</text>
+<line x1="960" y1="410" x2="960" y2="430" stroke="#8b949e" stroke-width="1.2" marker-end="url(#arr)"/>
+
+<rect x="870" y="430" width="180" height="55" rx="8" fill="#161b22" stroke="#238636" stroke-width="1.5"/>
+<text x="960" y="451" fill="#e6edf3" font-size="11" font-weight="600" text-anchor="middle">Редактирование</text>
+<text x="960" y="466" fill="#8b949e" font-size="9" text-anchor="middle">name, description, tags</text>
+<text x="960" y="479" fill="#8b949e" font-size="9" text-anchor="middle">category, notes, uploaded_at</text>
+
+<line x1="960" y1="485" x2="960" y2="515" stroke="#8b949e" stroke-width="1.2" marker-end="url(#arr)"/>
+<rect x="875" y="515" width="170" height="35" rx="6" fill="#1a3a2a" stroke="#3fb950" stroke-width="1.2"/>
+<text x="960" y="530" fill="#e6edf3" font-size="10" text-anchor="middle">session.commit()</text>
+<text x="960" y="543" fill="#8b949e" font-size="9" text-anchor="middle">Сохранить в SQLite</text>
+
+<line x1="960" y1="550" x2="960" y2="575" stroke="#8b949e" stroke-width="1.2" marker-end="url(#arr)"/>
+<rect x="870" y="575" width="180" height="30" rx="6" fill="#0f2a3a" stroke="#0078d4" stroke-width="1.2"/>
+<text x="960" y="595" fill="#e6edf3" font-size="10" text-anchor="middle">redirect → /model/id</text>
+
+<!-- localStorage autosave note -->
+<rect x="870" y="615" width="180" height="35" rx="6" fill="#2e1e0a" stroke="#f0883e" stroke-width="1.2"/>
+<text x="960" y="630" fill="#e6edf3" font-size="9" text-anchor="middle">⚡ JS: autosave черновика</text>
+<text x="960" y="644" fill="#8b949e" font-size="9" text-anchor="middle">localStorage каждые 3 сек</text>
+
+<!-- ══════════════════════════════════════════════════════════════ -->
+<!-- UPLOAD FLOW -->
+<!-- ══════════════════════════════════════════════════════════════ -->
+<line x1="660" y1="452" x2="660" y2="680" stroke="none"/>
+
+<!-- Separator line -->
+<line x1="20" y1="670" x2="1300" y2="670" stroke="#30363d" stroke-width="1" stroke-dasharray="4,4"/>
+<text x="30" y="665" fill="#8b949e" font-size="10">─── ЗАГРУЗКА ФАЙЛА (POST /upload) ───────────────────────────────────────────────────────────────────────────────────────────────</text>
+
+<rect x="490" y="685" width="340" height="40" rx="8" fill="#0f2a3a" stroke="#0078d4" stroke-width="1.5"/>
+<text x="660" y="710" fill="#e6edf3" font-size="12" font-weight="600" text-anchor="middle">🌐 Браузер: drag&amp;drop или выбор файла</text>
+
+<line x1="660" y1="725" x2="660" y2="752" stroke="#8b949e" stroke-width="1.5" marker-end="url(#arr)"/>
+
+<rect x="530" y="752" width="260" height="40" rx="8" fill="#161b22" stroke="#238636" stroke-width="1.5"/>
+<text x="660" y="773" fill="#e6edf3" font-size="11" font-weight="600" text-anchor="middle">XHR POST /upload</text>
+<text x="660" y="787" fill="#8b949e" font-size="9" text-anchor="middle">multipart/form-data · progress bar</text>
+
+<line x1="660" y1="792" x2="660" y2="820" stroke="#8b949e" stroke-width="1.5" marker-end="url(#arr)"/>
+
+<!-- validate -->
+<polygon points="660,820 740,852 660,884 580,852" fill="#161b22" stroke="#bc8cff" stroke-width="1.5"/>
+<text x="660" y="848" fill="#e6edf3" font-size="10" text-anchor="middle">Файл</text>
+<text x="660" y="862" fill="#8b949e" font-size="9" text-anchor="middle">.stl ?</text>
+
+<!-- NO -->
+<line x1="740" y1="852" x2="840" y2="852" stroke="#f85149" stroke-width="1.2" marker-end="url(#arr-red)"/>
+<text x="788" y="844" fill="#f85149" font-size="9">Нет</text>
+<rect x="840" y="834" width="130" height="36" rx="6" fill="#2e1a1a" stroke="#f85149" stroke-width="1.2"/>
+<text x="905" y="856" fill="#f85149" font-size="10" text-anchor="middle">JSON error</text>
+<text x="905" y="869" fill="#8b949e" font-size="9" text-anchor="middle">Только .stl</text>
+
+<!-- YES -->
+<line x1="660" y1="884" x2="660" y2="912" stroke="#238636" stroke-width="1.2" marker-end="url(#arr-green)"/>
+<text x="670" y="902" fill="#238636" font-size="9">Да</text>
+
+<rect x="540" y="912" width="240" height="44" rx="8" fill="#1a3a2a" stroke="#3fb950" stroke-width="1.5"/>
+<text x="660" y="932" fill="#e6edf3" font-size="11" font-weight="600" text-anchor="middle">secure_filename() → save</text>
+<text x="660" y="947" fill="#8b949e" font-size="9" text-anchor="middle">data/uploads/{filename}.stl</text>
+
+<line x1="660" y1="956" x2="660" y2="984" stroke="#8b949e" stroke-width="1.5" marker-end="url(#arr)"/>
+
+<rect x="510" y="984" width="300" height="60" rx="8" fill="#2e1e0a" stroke="#f0883e" stroke-width="1.5"/>
+<text x="660" y="1006" fill="#e6edf3" font-size="11" font-weight="600" text-anchor="middle">index_single_file(path)</text>
+<text x="660" y="1021" fill="#8b949e" font-size="9" text-anchor="middle">sha256() → get_by_hash() → extract_meta()</text>
+<text x="660" y="1035" fill="#8b949e" font-size="9" text-anchor="middle">auto_description() → render_preview()</text>
+
+<line x1="660" y1="1044" x2="660" y2="1072" stroke="#8b949e" stroke-width="1.5" marker-end="url(#arr)"/>
+
+<rect x="530" y="1072" width="260" height="35" rx="6" fill="#1a3a2a" stroke="#3fb950" stroke-width="1.2"/>
+<text x="660" y="1088" fill="#e6edf3" font-size="10" text-anchor="middle">STLModel → session.commit()</text>
+<text x="660" y="1102" fill="#8b949e" font-size="9" text-anchor="middle">+ PNG превью в static/previews/</text>
+
+<line x1="660" y1="1107" x2="660" y2="1132" stroke="#8b949e" stroke-width="1.5" marker-end="url(#arr)"/>
+<rect x="530" y="1132" width="260" height="32" rx="6" fill="#0f2a3a" stroke="#0078d4" stroke-width="1.2"/>
+<text x="660" y="1153" fill="#e6edf3" font-size="10" text-anchor="middle">JSON {ok, msg, model_id} → toast</text>
+
+<!-- ══════════════════════════════════════════════════════════════ -->
+<!-- SCAN FLOW -->
+<!-- ══════════════════════════════════════════════════════════════ -->
+<line x1="20" y1="1190" x2="1300" y2="1190" stroke="#30363d" stroke-width="1" stroke-dasharray="4,4"/>
+<text x="30" y="1185" fill="#8b949e" font-size="10">─── СКАНИРОВАНИЕ ПАПКИ (POST /scan) ─────────────────────────────────────────────────────────────────────────────────────────────</text>
+
+<rect x="490" y="1205" width="340" height="40" rx="8" fill="#0f2a3a" stroke="#0078d4" stroke-width="1.5"/>
+<text x="660" y="1230" fill="#e6edf3" font-size="12" font-weight="600" text-anchor="middle">🌐 Браузер: ввод пути к папке + Старт</text>
+
+<line x1="660" y1="1245" x2="660" y2="1272" stroke="#8b949e" stroke-width="1.5" marker-end="url(#arr)"/>
+
+<!-- check dir exists -->
+<polygon points="660,1272 750,1304 660,1336 570,1304" fill="#161b22" stroke="#bc8cff" stroke-width="1.5"/>
+<text x="660" y="1300" fill="#e6edf3" font-size="10" text-anchor="middle">Папка</text>
+<text x="660" y="1314" fill="#8b949e" font-size="9" text-anchor="middle">существует?</text>
+
+<!-- NO -->
+<line x1="750" y1="1304" x2="850" y2="1304" stroke="#f85149" stroke-width="1.2" marker-end="url(#arr-red)"/>
+<text x="798" y="1296" fill="#f85149" font-size="9">Нет</text>
+<rect x="850" y="1286" width="140" height="36" rx="6" fill="#2e1a1a" stroke="#f85149" stroke-width="1.2"/>
+<text x="920" y="1308" fill="#f85149" font-size="10" text-anchor="middle">JSON 400 error</text>
+
+<!-- YES -->
+<line x1="660" y1="1336" x2="660" y2="1364" stroke="#238636" stroke-width="1.2" marker-end="url(#arr-green)"/>
+<text x="670" y="1354" fill="#238636" font-size="9">Да</text>
+
+<!-- ScanJob -->
+<rect x="510" y="1364" width="300" height="50" rx="8" fill="#2e1e0a" stroke="#f0883e" stroke-width="1.5"/>
+<text x="660" y="1385" fill="#e6edf3" font-size="11" font-weight="600" text-anchor="middle">ScanJob(dir, recursive)</text>
+<text x="660" y="1402" fill="#8b949e" font-size="9" text-anchor="middle">daemon thread → _scan_lock</text>
+
+<!-- Thread runs -->
+<line x1="660" y1="1414" x2="660" y2="1442" stroke="#f0883e" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arr-orange)"/>
+<text x="670" y="1432" fill="#f0883e" font-size="9">фон. поток</text>
+
+<rect x="490" y="1442" width="340" height="75" rx="8" fill="#2e1e0a" stroke="#f0883e" stroke-width="1.5"/>
+<text x="660" y="1462" fill="#e6edf3" font-size="11" font-weight="600" text-anchor="middle">_run(): glob *.stl/*.STL</text>
+<text x="660" y="1478" fill="#8b949e" font-size="9" text-anchor="middle">для каждого файла:</text>
+<text x="660" y="1492" fill="#8b949e" font-size="9" text-anchor="middle">sha256() → get_by_hash() → дубль?</text>
+<text x="660" y="1506" fill="#8b949e" font-size="9" text-anchor="middle">extract_meta() → auto_description() → render_preview() → DB</text>
+
+<!-- Polling -->
+<line x1="490" y1="1480" x2="380" y2="1480" stroke="#4fc3f7" stroke-width="1.2" stroke-dasharray="4,3" marker-end="url(#arr-accent)"/>
+<text x="430" y="1472" fill="#4fc3f7" font-size="9" text-anchor="middle">polling</text>
+<text x="430" y="1483" fill="#4fc3f7" font-size="9" text-anchor="middle">800ms</text>
+
+<rect x="220" y="1462" width="160" height="36" rx="6" fill="#0f2a3a" stroke="#4fc3f7" stroke-width="1.2"/>
+<text x="300" y="1478" fill="#e6edf3" font-size="10" text-anchor="middle">GET /scan/progress</text>
+<text x="300" y="1492" fill="#8b949e" font-size="9" text-anchor="middle">JSON pct, added, dupes…</text>
+
+<line x1="660" y1="1517" x2="660" y2="1548" stroke="#8b949e" stroke-width="1.5" marker-end="url(#arr)"/>
+
+<polygon points="660,1548 740,1580 660,1612 580,1580" fill="#161b22" stroke="#bc8cff" stroke-width="1.5"/>
+<text x="660" y="1576" fill="#e6edf3" font-size="10" text-anchor="middle">Готово?</text>
+<text x="660" y="1590" fill="#8b949e" font-size="9" text-anchor="middle">done == true</text>
+
+<!-- loop back -->
+<line x1="580" y1="1580" x2="480" y2="1580" stroke="#8b949e" stroke-width="1.2"/>
+<line x1="480" y1="1580" x2="480" y2="1480" stroke="#8b949e" stroke-width="1.2"/>
+<line x1="480" y1="1480" x2="490" y2="1480" stroke="#8b949e" stroke-width="1.2" marker-end="url(#arr)"/>
+<text x="458" y="1535" fill="#8b949e" font-size="9" text-anchor="middle">Нет</text>
+
+<!-- done -->
+<line x1="740" y1="1580" x2="870" y2="1580" stroke="#238636" stroke-width="1.2" marker-end="url(#arr-green)"/>
+<text x="803" y="1572" fill="#238636" font-size="9">Да</text>
+<rect x="870" y="1562" width="180" height="36" rx="6" fill="#1a3a2a" stroke="#3fb950" stroke-width="1.2"/>
+<text x="960" y="1578" fill="#e6edf3" font-size="10" text-anchor="middle">Итог: added/dupes/errors</text>
+<text x="960" y="1592" fill="#8b949e" font-size="9" text-anchor="middle">→ кнопка "В библиотеку"</text>
+
+<!-- ══════════════════════════════════════════════════════════════ -->
+<!-- DB SCHEMA (bottom) -->
+<!-- ══════════════════════════════════════════════════════════════ -->
+<line x1="20" y1="1660" x2="1300" y2="1660" stroke="#30363d" stroke-width="1" stroke-dasharray="4,4"/>
+<text x="30" y="1655" fill="#8b949e" font-size="10">─── БАЗА ДАННЫХ: stl_models ─────────────────────────────────────────────────────────────────────────────────────────────────────</text>
+
+<rect x="20" y="1668" width="1280" height="100" rx="8" fill="#1a3a2a" stroke="#3fb950" stroke-width="1.5"/>
+<text x="660" y="1690" fill="#3fb950" font-size="11" font-weight="700" text-anchor="middle">stl_models (SQLite · WAL mode)</text>
+
+<text x="40" y="1712" fill="#8b949e" font-size="10">id  name  file_path  sha256  face_count  vertex_count  volume_mm3  surface_mm2</text>
+<text x="40" y="1728" fill="#8b949e" font-size="10">bbox_x  bbox_y  bbox_z  is_watertight  file_size_kb  preview_path</text>
+<text x="40" y="1744" fill="#4fc3f7" font-size="10">description (авто)  tags (запятые)  notes (заметки)  category</text>
+<text x="40" y="1760" fill="#f0883e" font-size="10">uploaded_at (редактируемая)  indexed_at (системная)</text>
+<text x="700" y="1712" fill="#8b949e" font-size="10">Автомиграция: PRAGMA table_info → ALTER TABLE ADD COLUMN</text>
+<text x="700" y="1728" fill="#8b949e" font-size="10">Без пересоздания таблицы · WAL + synchronous=NORMAL</text>
+<text x="700" y="1744" fill="#8b949e" font-size="10">preview_path → static/previews/{sha256[:16]}.png</text>
+<text x="700" y="1760" fill="#8b949e" font-size="10">file_path → data/uploads/ (загруженные) или внешний путь (скан)</text>
+
+</svg>
+</div>
+</body>
+</html>

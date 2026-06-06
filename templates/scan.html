@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+{% block title %}Сканирование папки — STL Library{% endblock %}
+{% block head %}
+<style>
+.scan-page{max-width:680px;margin:40px auto;padding:0 24px}
+.scan-title{font-size:20px;font-weight:700;margin-bottom:6px}
+.scan-sub{font-size:13px;color:var(--text2);margin-bottom:28px}
+.scan-card{background:var(--bg1);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:20px}
+.dir-row{display:flex;gap:8px}
+.dir-row input{flex:1}
+.check-row{display:flex;align-items:center;gap:10px;margin-top:14px;font-size:13px;cursor:pointer;color:var(--text2)}
+.check-row input{accent-color:var(--accent2);width:16px;height:16px}
+
+/* Progress */
+.scan-progress{display:none}
+.scan-progress.visible{display:block}
+.prog-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.prog-title{font-size:14px;font-weight:600}
+.prog-pct{font-size:14px;font-weight:700;color:var(--accent)}
+.prog-file{font-size:11px;color:var(--text2);font-family:"Consolas",monospace;margin-top:8px;min-height:16px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.prog-stats{display:flex;gap:20px;margin-top:12px}
+.prog-stat{text-align:center}
+.prog-stat-val{font-size:20px;font-weight:700;display:block}
+.prog-stat-lbl{font-size:11px;color:var(--text2)}
+.stat-added{color:#3fb950}.stat-dupe{color:var(--text2)}.stat-err{color:var(--orange)}
+
+/* Result */
+.scan-result{background:var(--bg1);border:1px solid var(--border);border-radius:var(--radius);padding:20px;display:none}
+.scan-result.visible{display:block}
+.result-title{font-size:15px;font-weight:700;margin-bottom:14px;color:#3fb950}
+.result-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px}
+.result-item{background:var(--bg2);border-radius:var(--radius);padding:14px;text-align:center}
+.result-val{font-size:24px;font-weight:700;display:block}
+.result-lbl{font-size:12px;color:var(--text2);margin-top:2px}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="scan-page">
+  <div class="scan-title">⌕ Сканировать папку</div>
+  <div class="scan-sub">Приложение рекурсивно найдёт все STL файлы, исключит дубликаты и добавит новые модели в библиотеку</div>
+
+  <!-- Form -->
+  <div class="scan-card" id="scan-form-block">
+    <div class="form-group">
+      <label class="form-label">Путь к папке</label>
+      <div class="dir-row">
+        <input class="form-control" type="text" id="dir-input"
+               placeholder="C:\Users\...\models  или  D:\STL_Library">
+      </div>
+      <div class="form-hint" style="margin-top:6px">Укажите полный путь к папке со STL файлами на сервере</div>
+    </div>
+    <label class="check-row">
+      <input type="checkbox" id="recursive-chk" checked>
+      Рекурсивный поиск (включая подпапки)
+    </label>
+    <button class="btn btn-primary" id="start-btn" onclick="startScan()"
+            style="margin-top:18px;padding:10px 24px;font-size:14px">
+      ⌕ Начать сканирование
+    </button>
+  </div>
+
+  <!-- Progress -->
+  <div class="scan-card scan-progress" id="progress-block">
+    <div class="prog-header">
+      <div class="prog-title" id="prog-title">Сканирование…</div>
+      <div class="prog-pct" id="prog-pct">0%</div>
+    </div>
+    <div class="progress-wrap" style="height:8px">
+      <div class="progress-bar" id="prog-bar" style="width:0%;height:100%"></div>
+    </div>
+    <div class="prog-file" id="prog-file">Подготовка…</div>
+    <div class="prog-stats">
+      <div class="prog-stat"><span class="prog-stat-val stat-added" id="s-added">0</span><span class="prog-stat-lbl">Добавлено</span></div>
+      <div class="prog-stat"><span class="prog-stat-val stat-dupe" id="s-dupes">0</span><span class="prog-stat-lbl">Дублей</span></div>
+      <div class="prog-stat"><span class="prog-stat-val stat-err" id="s-errors">0</span><span class="prog-stat-lbl">Ошибок</span></div>
+      <div class="prog-stat"><span class="prog-stat-val" id="s-total" style="color:var(--text2)">0</span><span class="prog-stat-lbl">Всего файлов</span></div>
+    </div>
+    <button class="btn btn-danger btn-sm" onclick="stopScan()" style="margin-top:14px">✕ Остановить</button>
+  </div>
+
+  <!-- Result -->
+  <div class="scan-result" id="result-block">
+    <div class="result-title">✓ Сканирование завершено</div>
+    <div class="result-grid">
+      <div class="result-item"><span class="result-val" id="r-added" style="color:#3fb950">0</span><div class="result-lbl">Добавлено</div></div>
+      <div class="result-item"><span class="result-val" id="r-dupes" style="color:var(--text2)">0</span><div class="result-lbl">Дублей</div></div>
+      <div class="result-item"><span class="result-val" id="r-errors" style="color:var(--orange)">0</span><div class="result-lbl">Ошибок</div></div>
+    </div>
+    <div style="display:flex;gap:10px">
+      <a href="/" class="btn btn-primary">→ В библиотеку</a>
+      <button class="btn" onclick="resetScan()">Новое сканирование</button>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let pollTimer = null;
+
+async function startScan() {
+  const dir = document.getElementById('dir-input').value.trim();
+  const rec = document.getElementById('recursive-chk').checked;
+  if (!dir) { toast('Укажите путь к папке', false); return; }
+
+  document.getElementById('start-btn').disabled = true;
+
+  const res = await fetch('/scan', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({directory: dir, recursive: rec})
+  }).then(r => r.json());
+
+  if (!res.ok) {
+    toast(res.msg, false);
+    document.getElementById('start-btn').disabled = false;
+    return;
+  }
+
+  document.getElementById('scan-form-block').style.display = 'none';
+  document.getElementById('progress-block').classList.add('visible');
+  pollTimer = setInterval(pollProgress, 800);
+}
+
+async function pollProgress() {
+  const d = await fetch('/scan/progress').then(r => r.json());
+
+  document.getElementById('prog-bar').style.width  = d.pct + '%';
+  document.getElementById('prog-pct').textContent  = d.pct + '%';
+  document.getElementById('prog-file').textContent = d.current_file || '…';
+  document.getElementById('s-added').textContent   = d.added;
+  document.getElementById('s-dupes').textContent   = d.dupes;
+  document.getElementById('s-errors').textContent  = d.errors;
+  document.getElementById('s-total').textContent   = d.total;
+
+  if (d.done || (!d.running && d.total > 0)) {
+    clearInterval(pollTimer);
+    showResult(d);
+  }
+}
+
+function showResult(d) {
+  document.getElementById('progress-block').classList.remove('visible');
+  const rb = document.getElementById('result-block');
+  rb.classList.add('visible');
+  document.getElementById('r-added').textContent  = d.added;
+  document.getElementById('r-dupes').textContent  = d.dupes;
+  document.getElementById('r-errors').textContent = d.errors;
+  if (d.cancelled) {
+    rb.querySelector('.result-title').textContent = '⚠ Сканирование отменено';
+    rb.querySelector('.result-title').style.color = 'var(--orange)';
+  }
+  if (d.error_msg) toast('Ошибка: ' + d.error_msg, false);
+}
+
+async function stopScan() {
+  clearInterval(pollTimer);
+  await fetch('/scan/stop', {method:'POST'});
+  toast('Сканирование остановлено');
+  setTimeout(pollProgress, 400);
+}
+
+function resetScan() {
+  document.getElementById('result-block').classList.remove('visible');
+  document.getElementById('scan-form-block').style.display = 'block';
+  document.getElementById('start-btn').disabled = false;
+  document.getElementById('dir-input').value = '';
+}
+</script>
+{% endblock %}

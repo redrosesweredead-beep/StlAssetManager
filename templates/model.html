@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+{% block title %}{{ model.name }} — STL Library{% endblock %}
+{% block head %}
+<style>
+.model-page{max-width:1100px;margin:0 auto;padding:24px}
+.breadcrumb{font-size:12px;color:var(--text2);margin-bottom:16px}
+.breadcrumb a{color:var(--text2)}
+.model-layout{display:grid;grid-template-columns:380px 1fr;gap:32px;align-items:start}
+@media(max-width:820px){.model-layout{grid-template-columns:1fr}}
+
+.preview-box{background:#090d13;border:1px solid var(--border);border-radius:var(--radius);aspect-ratio:1;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.preview-box img{width:100%;height:100%;object-fit:cover}
+.no-prev-lg{text-align:center;color:var(--text3);padding:40px}
+.no-prev-lg span{font-size:56px;display:block;margin-bottom:12px;opacity:.2}
+
+.model-cat{display:inline-block;margin-bottom:12px;font-size:12px;color:var(--accent);background:#0f2a3a;border:1px solid #1e4a6a;border-radius:20px;padding:3px 12px}
+.model-name{font-size:24px;font-weight:700;margin-bottom:14px;word-break:break-word}
+
+.desc-block{background:var(--bg1);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:18px;font-size:13px;line-height:1.75;white-space:pre-wrap;color:var(--text)}
+.desc-block.empty{color:var(--text3);font-style:italic}
+
+.specs{background:var(--bg1);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:18px}
+.specs-title{padding:9px 16px;font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--text2);border-bottom:1px solid var(--border)}
+.spec-row{display:flex;padding:8px 16px;border-bottom:1px solid var(--border);font-size:13px}
+.spec-row:last-child{border-bottom:none}
+.spec-label{color:var(--text2);width:155px;flex-shrink:0;font-size:12px}
+.spec-val{color:var(--text);font-family:"Consolas",monospace;font-size:12px}
+.spec-val.green{color:#3fb950}.spec-val.orange{color:var(--orange)}
+
+.notes-block{background:var(--bg1);border:1px solid var(--border);border-left:3px solid var(--orange);border-radius:var(--radius);padding:13px 16px;margin-bottom:18px;font-size:13px;line-height:1.7;white-space:pre-wrap}
+.notes-label{font-size:11px;font-weight:700;text-transform:uppercase;color:var(--orange);margin-bottom:6px;letter-spacing:.4px}
+
+.tags-row{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:18px}
+.file-path{font-family:"Consolas",monospace;font-size:11px;color:var(--text3);word-break:break-all;margin-top:4px}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="model-page">
+  <div class="breadcrumb"><a href="/">← Библиотека</a></div>
+  <div class="model-layout">
+
+    <!-- Preview -->
+    <div>
+      <div class="preview-box">
+        {% if model.preview_path %}
+          <img src="{{ model.preview_url() }}" alt="{{ model.name }}">
+        {% else %}
+          <div class="no-prev-lg"><span>◈</span>Превью недоступно</div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Info -->
+    <div>
+      {% if model.category %}
+        <div class="model-cat">{{ model.category }}</div>
+      {% endif %}
+      <div class="model-name">{{ model.name }}</div>
+
+      <!-- Description -->
+      {% if model.description %}
+        <div class="desc-block">{{ model.description }}</div>
+      {% else %}
+        <div class="desc-block empty">Описание не добавлено — <a href="/model/{{ model.id }}/edit">добавить</a></div>
+      {% endif %}
+
+      <!-- Tags -->
+      {% if model.tags %}
+      <div class="tags-row">
+        {% for t in model.tag_list() %}
+          <a href="/?tag={{ t }}" class="tag-chip">{{ t }}</a>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <!-- Specs -->
+      <div class="specs">
+        <div class="specs-title">Геометрия и характеристики</div>
+        {% if model.bbox_x %}
+        <div class="spec-row"><span class="spec-label">Габариты</span>
+          <span class="spec-val">{{ "%.2f"|format(model.bbox_x) }} × {{ "%.2f"|format(model.bbox_y) }} × {{ "%.2f"|format(model.bbox_z) }} mm</span></div>
+        {% endif %}
+        {% if model.face_count %}
+        <div class="spec-row"><span class="spec-label">Полигонов</span>
+          <span class="spec-val">{{ model.face_count|fmt_number }}</span></div>
+        {% endif %}
+        {% if model.vertex_count %}
+        <div class="spec-row"><span class="spec-label">Вершин</span>
+          <span class="spec-val">{{ model.vertex_count|fmt_number }}</span></div>
+        {% endif %}
+        {% if model.volume_mm3 %}
+        <div class="spec-row"><span class="spec-label">Объём</span>
+          <span class="spec-val">{{ "%.3f"|format(model.volume_mm3) }} mm³</span></div>
+        {% endif %}
+        {% if model.surface_mm2 %}
+        <div class="spec-row"><span class="spec-label">Площадь поверхн.</span>
+          <span class="spec-val">{{ "%.2f"|format(model.surface_mm2) }} mm²</span></div>
+        {% endif %}
+        <div class="spec-row"><span class="spec-label">Watertight</span>
+          {% if model.is_watertight %}
+            <span class="spec-val green">✓ Да (замкнутая)</span>
+          {% else %}
+            <span class="spec-val orange">✗ Нет</span>
+          {% endif %}
+        </div>
+        {% if model.file_size_kb %}
+        <div class="spec-row"><span class="spec-label">Размер файла</span>
+          <span class="spec-val">{{ "%.1f"|format(model.file_size_kb) }} KB</span></div>
+        {% endif %}
+        <div class="spec-row"><span class="spec-label">Дата загрузки</span>
+          <span class="spec-val">{{ model.uploaded_at.strftime('%d.%m.%Y %H:%M') if model.uploaded_at else '—' }}</span></div>
+        <div class="spec-row"><span class="spec-label">Индексировано</span>
+          <span class="spec-val">{{ model.indexed_at.strftime('%d.%m.%Y %H:%M') if model.indexed_at else '—' }}</span></div>
+      </div>
+
+      <!-- Notes -->
+      {% if model.notes %}
+      <div class="notes-block">
+        <div class="notes-label">📝 Заметки</div>
+        {{ model.notes }}
+      </div>
+      {% endif %}
+
+      <div class="file-path">{{ model.file_path }}</div>
+
+      <div class="actions">
+        <a href="/model/{{ model.id }}/edit" class="btn btn-primary">✎ Редактировать</a>
+        <a href="/model/{{ model.id }}/download" class="btn btn-success">⬇ Скачать STL</a>
+        <form method="post" action="/model/{{ model.id }}/delete"
+              onsubmit="return confirm('Удалить «{{ model.name }}» из библиотеки?')">
+          <button type="submit" class="btn btn-danger">🗑 Удалить</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

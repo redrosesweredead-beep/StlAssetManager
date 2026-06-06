@@ -1,0 +1,7 @@
+flask>=3.0.0
+sqlalchemy>=2.0.0
+trimesh>=4.0.0
+numpy>=1.26.0
+pyvista>=0.43.0
+pillow>=10.0.0
+werkzeug>=3.0.0

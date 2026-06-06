@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% block title %}Редактировать — {{ model.name }}{% endblock %}
+{% block head %}
+<style>
+.edit-page{max-width:720px;margin:0 auto;padding:28px 24px}
+.edit-title{font-size:20px;font-weight:700;margin-bottom:4px}
+.edit-sub{font-size:12px;color:var(--text2);margin-bottom:24px}
+.edit-card{background:var(--bg1);border:1px solid var(--border);border-radius:var(--radius);padding:24px}
+.edit-actions{display:flex;gap:10px;margin-top:24px;padding-top:20px;border-top:1px solid var(--border)}
+.draft-note{font-size:11px;color:var(--text3);margin-top:6px}
+.tag-hint{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+.tag-hint span{font-size:11px;background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:2px 8px;color:var(--text2);cursor:pointer}
+.tag-hint span:hover{border-color:var(--accent2);color:var(--accent)}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="edit-page">
+  <div class="breadcrumb" style="font-size:12px;color:var(--text2);margin-bottom:14px">
+    <a href="/" style="color:var(--text2)">Библиотека</a> →
+    <a href="/model/{{ model.id }}" style="color:var(--text2)">{{ model.name }}</a> →
+    <span>Редактировать</span>
+  </div>
+
+  <div class="edit-title">✎ Редактирование</div>
+  <div class="edit-sub">{{ model.file_path }}</div>
+
+  <form id="edit-form" method="post" action="/model/{{ model.id }}/edit">
+    <div class="edit-card">
+
+      <div class="form-group">
+        <label class="form-label">Имя модели</label>
+        <input class="form-control" type="text" name="name" value="{{ model.name }}" required>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Категория</label>
+        <input class="form-control" type="text" name="category" value="{{ model.category or '' }}"
+               placeholder="Например: Машиностроение, Корпуса, Детали…">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Описание</label>
+        <textarea class="form-control" name="description" rows="5"
+                  placeholder="Описание модели, назначение, особенности…">{{ model.description or '' }}</textarea>
+        <div class="draft-note" id="draft-status">Черновик сохраняется автоматически</div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Теги <span style="color:var(--text3);font-weight:400">(через запятую)</span></label>
+        <input class="form-control" type="text" name="tags" id="tags-input"
+               value="{{ model.tags or '' }}"
+               placeholder="прототип, деталь, механизм…">
+        {% if model.tags %}
+        <div class="tag-hint">
+          {% for t in model.tag_list() %}
+            <span onclick="removeTag('{{ t }}')">✕ {{ t }}</span>
+          {% endfor %}
+        </div>
+        {% endif %}
+        <div class="form-hint">Теги используются для фильтрации в библиотеке</div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Заметки</label>
+        <textarea class="form-control" name="notes" rows="4"
+                  placeholder="Свободные заметки, история изменений, ссылки…">{{ model.notes or '' }}</textarea>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Дата загрузки <span style="color:var(--text3);font-weight:400">(редактируется вручную)</span></label>
+        <input class="form-control" type="datetime-local" name="uploaded_at" value="{{ dt_str }}">
+        <div class="form-hint">Используется для сортировки по дате загрузки</div>
+      </div>
+
+    </div>
+
+    <div class="edit-actions">
+      <button type="submit" class="btn btn-primary">✓ Сохранить</button>
+      <a href="/model/{{ model.id }}" class="btn">Отмена</a>
+    </div>
+  </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// ── Автосохранение черновика ───────────────────────────────────────────
+const DRAFT_KEY = 'draft_{{ model.id }}';
+const fields = ['name','category','description','tags','notes','uploaded_at'];
+
+function saveDraft() {
+  const draft = {};
+  fields.forEach(f => {
+    const el = document.querySelector(`[name="${f}"]`);
+    if (el) draft[f] = el.value;
+  });
+  localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+  document.getElementById('draft-status').textContent = '✓ Черновик сохранён ' + new Date().toLocaleTimeString();
+}
+
+function loadDraft() {
+  const raw = localStorage.getItem(DRAFT_KEY);
+  if (!raw) return;
+  try {
+    const draft = JSON.parse(raw);
+    // не перезаписываем если пользователь уже сохранил
+    fields.forEach(f => {
+      const el = document.querySelector(`[name="${f}"]`);
+      if (el && draft[f] !== undefined) el.value = draft[f];
+    });
+  } catch(e) {}
+}
+
+// Сохраняем каждые 3 сек
+setInterval(saveDraft, 3000);
+
+// Очищаем черновик после отправки формы
+document.getElementById('edit-form').addEventListener('submit', () => {
+  localStorage.removeItem(DRAFT_KEY);
+});
+
+// Удалить тег
+function removeTag(tag) {
+  const el = document.getElementById('tags-input');
+  const tags = el.value.split(',').map(t => t.trim()).filter(t => t !== tag);
+  el.value = tags.join(', ');
+}
+</script>
+{% endblock %}

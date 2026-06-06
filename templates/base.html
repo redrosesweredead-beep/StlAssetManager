@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{% block title %}STL Library{% endblock %}</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg0:#0d1117;--bg1:#161b22;--bg2:#21262d;--bg3:#2d333b;
+  --border:#30363d;--text:#e6edf3;--text2:#8b949e;--text3:#6e7681;
+  --accent:#4fc3f7;--accent2:#0078d4;--green:#238636;
+  --orange:#f0883e;--red:#f85149;--purple:#bc8cff;--radius:8px;
+  --shadow:0 4px 24px rgba(0,0,0,.55);
+}
+html{font-size:14px;scroll-behavior:smooth}
+body{font-family:"Segoe UI",system-ui,sans-serif;background:var(--bg0);color:var(--text);min-height:100vh;display:flex;flex-direction:column}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+
+/* ── Navbar ── */
+.navbar{background:var(--bg1);border-bottom:1px solid var(--border);padding:0 20px;height:54px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:200}
+.nb-brand{font-size:16px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:8px;white-space:nowrap}
+.nb-brand em{color:var(--accent);font-style:normal}
+.nb-links{display:flex;gap:4px;margin-left:auto;align-items:center}
+.nb-link{color:var(--text2);padding:5px 13px;border-radius:6px;font-size:13px;transition:.15s}
+.nb-link:hover,.nb-link.active{background:var(--bg2);color:var(--text);text-decoration:none}
+.nb-link.active{color:var(--accent)}
+
+/* ── Buttons ── */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 15px;border-radius:6px;font-size:13px;font-weight:500;cursor:pointer;border:1px solid var(--border);background:var(--bg2);color:var(--text);transition:.15s;text-decoration:none;white-space:nowrap}
+.btn:hover{background:var(--bg3);text-decoration:none;color:var(--text)}
+.btn-primary{background:var(--accent2);border-color:var(--accent2);color:#fff}
+.btn-primary:hover{background:#006abd;border-color:#006abd;color:#fff}
+.btn-success{background:var(--green);border-color:var(--green);color:#fff}
+.btn-success:hover{background:#1a7a2a;color:#fff}
+.btn-danger{background:transparent;border-color:var(--red);color:var(--red)}
+.btn-danger:hover{background:var(--red);color:#fff}
+.btn-sm{padding:4px 10px;font-size:12px}
+.btn-icon{padding:6px 10px}
+
+/* ── Form ── */
+.form-group{margin-bottom:16px}
+.form-label{display:block;margin-bottom:5px;font-size:12px;color:var(--text2);font-weight:600;letter-spacing:.3px;text-transform:uppercase}
+.form-control{width:100%;background:var(--bg1);border:1px solid var(--border);border-radius:6px;padding:8px 12px;color:var(--text);font-size:13px;font-family:inherit;transition:.15s}
+.form-control:focus{outline:none;border-color:var(--accent2);box-shadow:0 0 0 3px rgba(0,120,212,.15)}
+textarea.form-control{resize:vertical;min-height:90px;line-height:1.6}
+.form-hint{font-size:11px;color:var(--text3);margin-top:4px}
+
+/* ── Progress ── */
+.progress-wrap{background:var(--bg2);border-radius:4px;overflow:hidden;height:6px}
+.progress-bar{height:100%;background:var(--accent2);border-radius:4px;transition:width .3s}
+
+/* ── Badges / Tags ── */
+.badge{display:inline-block;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:600;background:var(--bg3);color:var(--text2)}
+.badge-green{background:#1a3a1a;color:#3fb950}
+.badge-orange{background:#2e1e0a;color:var(--orange)}
+.tag-chip{display:inline-block;padding:3px 10px;background:var(--bg2);border:1px solid var(--border);border-radius:20px;font-size:11px;color:var(--accent);cursor:pointer;transition:.12s}
+.tag-chip:hover,.tag-chip.active{background:var(--accent2);border-color:var(--accent2);color:#fff;text-decoration:none}
+
+/* ── Alert ── */
+.alert{padding:12px 16px;border-radius:var(--radius);border:1px solid var(--border);margin-bottom:16px;font-size:13px}
+.alert-success{border-color:#3fb950;color:#3fb950;background:#1a2e1a}
+.alert-error{border-color:var(--red);color:var(--red);background:#2e1a1a}
+
+/* ── Page ── */
+.page-wrap{flex:1;display:flex;flex-direction:column}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:var(--bg0)}
+::-webkit-scrollbar-thumb{background:var(--bg3);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--accent)}
+
+/* ── Toast ── */
+#toasts{position:fixed;bottom:24px;right:24px;display:flex;flex-direction:column;gap:8px;z-index:9999}
+.toast{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:12px 16px;font-size:13px;min-width:260px;max-width:360px;box-shadow:var(--shadow);animation:toastIn .2s ease}
+.toast.ok{border-left:3px solid #3fb950}
+.toast.err{border-left:3px solid var(--red)}
+@keyframes toastIn{from{transform:translateX(40px);opacity:0}to{transform:none;opacity:1}}
+</style>
+{% block head %}{% endblock %}
+</head>
+<body>
+<nav class="navbar">
+  <div class="nb-brand">◈ <em>STL</em> Library</div>
+  <div class="nb-links">
+    <a class="nb-link {% if request.endpoint=='index' %}active{% endif %}" href="/">Библиотека</a>
+    <a class="nb-link {% if request.endpoint=='upload' %}active{% endif %}" href="/upload">Загрузить файл</a>
+    <a class="nb-link {% if request.endpoint in ['scan_page','scan_start'] %}active{% endif %}" href="/scan">Сканировать папку</a>
+  </div>
+</nav>
+<div class="page-wrap">{% block content %}{% endblock %}</div>
+<div id="toasts"></div>
+<script>
+function toast(msg,ok=true){
+  const d=document.createElement('div');
+  d.className='toast '+(ok?'ok':'err');
+  d.textContent=msg;
+  document.getElementById('toasts').appendChild(d);
+  setTimeout(()=>d.remove(),4500);
+}
+</script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

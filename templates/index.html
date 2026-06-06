@@ -1,0 +1,236 @@
+{% extends "base.html" %}
+{% block title %}STL Library — {{ stats.total }} моделей{% endblock %}
+{% block head %}
+<style>
+/* ── Layout ── */
+.lib-layout{display:flex;flex:1;min-height:0}
+
+/* ── Sidebar ── */
+.sidebar{
+  width:230px;flex-shrink:0;
+  background:var(--bg1);
+  border-right:1px solid var(--border);
+  padding:16px 14px;
+  overflow-y:auto;
+  position:sticky;top:54px;
+  height:calc(100vh - 54px);
+}
+.sidebar h3{font-size:11px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--text3);margin-bottom:10px;margin-top:16px}
+.sidebar h3:first-child{margin-top:0}
+.sb-select{width:100%;background:var(--bg0);border:1px solid var(--border);border-radius:6px;padding:6px 10px;color:var(--text);font-size:12px;cursor:pointer}
+.sb-select:focus{outline:none;border-color:var(--accent2)}
+.order-btns{display:flex;gap:6px;margin-top:8px}
+.order-btn{flex:1;padding:5px;font-size:12px;border:1px solid var(--border);border-radius:6px;background:var(--bg0);color:var(--text2);cursor:pointer;text-align:center;transition:.12s}
+.order-btn.active{background:var(--accent2);border-color:var(--accent2);color:#fff}
+.sb-check{display:flex;align-items:center;gap:8px;margin-bottom:6px;cursor:pointer;font-size:12px;color:var(--text2)}
+.sb-check input{accent-color:var(--accent2)}
+.sb-check:hover{color:var(--text)}
+.sb-row{margin-bottom:8px}
+.sb-row label{font-size:11px;color:var(--text3);display:block;margin-bottom:3px}
+.sb-input{width:100%;background:var(--bg0);border:1px solid var(--border);border-radius:6px;padding:5px 8px;color:var(--text);font-size:12px}
+.sb-input:focus{outline:none;border-color:var(--accent2)}
+.sb-reset{width:100%;margin-top:14px;padding:7px;border:1px solid var(--border);border-radius:6px;background:transparent;color:var(--text2);font-size:12px;cursor:pointer;transition:.12s}
+.sb-reset:hover{border-color:var(--red);color:var(--red)}
+.cat-list{display:flex;flex-direction:column;gap:4px}
+
+/* Mobile sidebar toggle */
+.sb-toggle{display:none;background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:6px 12px;font-size:12px;cursor:pointer;color:var(--text);margin-bottom:12px}
+@media(max-width:860px){
+  .sidebar{position:fixed;left:-240px;top:54px;height:calc(100vh - 54px);z-index:150;transition:.25s;box-shadow:var(--shadow)}
+  .sidebar.open{left:0}
+  .sb-toggle{display:inline-flex;align-items:center;gap:6px}
+}
+
+/* ── Main area ── */
+.lib-main{flex:1;padding:20px 24px;overflow:auto;min-width:0}
+
+/* ── Header ── */
+.lib-header{display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+.lib-title{font-size:20px;font-weight:700}
+.lib-counters{display:flex;gap:14px;font-size:12px;color:var(--text2)}
+.lib-counters b{color:var(--text)}
+
+/* ── Search ── */
+.search-row{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.search-row input{flex:1;min-width:200px;background:var(--bg1);border:1px solid var(--border);border-radius:6px;padding:8px 14px;color:var(--text);font-size:13px}
+.search-row input:focus{outline:none;border-color:var(--accent2)}
+
+/* ── Tag strip ── */
+.tag-strip{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+
+/* ── Grid ── */
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(215px,1fr));gap:15px}
+
+/* ── Card ── */
+.card{background:var(--bg1);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;transition:.15s;cursor:pointer;position:relative;display:flex;flex-direction:column}
+.card:hover{border-color:var(--accent2);box-shadow:0 0 0 1px var(--accent2),var(--shadow);transform:translateY(-2px)}
+.card-link{position:absolute;inset:0;z-index:1}
+.card-thumb{width:100%;aspect-ratio:1;background:#090d13;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;flex-shrink:0}
+.card-thumb img{width:100%;height:100%;object-fit:cover}
+.no-prev{color:var(--text3);font-size:11px;text-align:center;padding:12px}
+.no-prev-icon{font-size:28px;display:block;margin-bottom:4px;opacity:.25}
+.wt-badge{position:absolute;top:7px;right:7px;background:#1a3a1acc;color:#3fb950;border:1px solid #3fb950;border-radius:20px;font-size:9px;padding:2px 7px;font-weight:700;z-index:2}
+.card-body{padding:11px 12px;flex:1;display:flex;flex-direction:column;gap:4px}
+.card-name{font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card-dims{font-family:"Consolas",monospace;font-size:10px;color:var(--accent)}
+.card-meta{font-size:10px;color:var(--text2)}
+.card-desc{font-size:11px;color:var(--text2);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.5;margin-top:2px}
+.card-tags{display:flex;flex-wrap:wrap;gap:3px;margin-top:4px}
+.card-tag{font-size:9px;padding:2px 7px;background:var(--bg3);border-radius:20px;color:var(--text3)}
+
+/* ── Empty ── */
+.empty{text-align:center;padding:80px 20px;color:var(--text2)}
+.empty-icon{font-size:48px;display:block;margin-bottom:16px;opacity:.3}
+.empty h2{font-size:18px;color:var(--text);margin-bottom:8px}
+
+/* ── Action buttons ── */
+.top-actions{display:flex;gap:8px;margin-left:auto;flex-wrap:wrap}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="lib-layout">
+
+  <!-- ═══ SIDEBAR ═══ -->
+  <aside class="sidebar" id="sidebar">
+    <form id="filter-form" method="get" action="/">
+      <!-- сохраняем поисковый запрос -->
+      {% if query %}<input type="hidden" name="q" value="{{ query }}">{% endif %}
+
+      <h3>Сортировка</h3>
+      <select class="sb-select" name="sort" onchange="this.form.submit()">
+        <option value="uploaded_at" {% if sort=='uploaded_at' %}selected{% endif %}>Дата загрузки</option>
+        <option value="indexed_at"  {% if sort=='indexed_at'  %}selected{% endif %}>Дата индексации</option>
+        <option value="name"        {% if sort=='name'        %}selected{% endif %}>Имя (A→Z)</option>
+        <option value="file_size_kb"{% if sort=='file_size_kb'%}selected{% endif %}>Размер файла</option>
+        <option value="face_count"  {% if sort=='face_count'  %}selected{% endif %}>Полигонов</option>
+      </select>
+      <div class="order-btns">
+        <button type="submit" name="order" value="asc"  class="order-btn {% if order=='asc' %}active{% endif %}">↑ По возр.</button>
+        <button type="submit" name="order" value="desc" class="order-btn {% if order=='desc'%}active{% endif %}">↓ По убыв.</button>
+      </div>
+
+      {% if stats.categories %}
+      <h3>Категория</h3>
+      <div class="cat-list">
+        <label class="sb-check">
+          <input type="radio" name="cat" value="" {% if not active_cat %}checked{% endif %} onchange="this.form.submit()"> Все
+        </label>
+        {% for cat in stats.categories %}
+        <label class="sb-check">
+          <input type="radio" name="cat" value="{{ cat }}" {% if active_cat==cat %}checked{% endif %} onchange="this.form.submit()"> {{ cat }}
+        </label>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <h3>Фильтры</h3>
+      <label class="sb-check">
+        <input type="checkbox" name="wt" value="1" {% if wt %}checked{% endif %} onchange="this.form.submit()">
+        Только watertight
+      </label>
+
+      <div class="sb-row" style="margin-top:8px">
+        <label>Размер от (KB)</label>
+        <input class="sb-input" type="number" name="smin" value="{{ size_min if size_min else '' }}" placeholder="0">
+      </div>
+      <div class="sb-row">
+        <label>Размер до (KB)</label>
+        <input class="sb-input" type="number" name="smax" value="{{ size_max if size_max else '' }}" placeholder="∞">
+      </div>
+      <button type="submit" class="btn btn-primary btn-sm" style="width:100%;margin-top:4px">Применить</button>
+
+      <button type="button" class="sb-reset" onclick="window.location='/'">✕ Сбросить все</button>
+    </form>
+  </aside>
+
+  <!-- ═══ MAIN ═══ -->
+  <main class="lib-main">
+
+    <div class="lib-header">
+      <button class="sb-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">
+        ☰ Фильтры
+      </button>
+      <div class="lib-title">Библиотека</div>
+      <div class="lib-counters">
+        <span>Всего: <b>{{ stats.total }}</b></span>
+        <span>Watertight: <b>{{ stats.watertight }}</b></span>
+        <span>Объём: <b>{{ stats.size_mb }} MB</b></span>
+      </div>
+      <div class="top-actions">
+        <a class="btn btn-success" href="/upload">⬆ Загрузить STL</a>
+        <a class="btn btn-primary" href="/scan">⌕ Сканировать папку</a>
+      </div>
+    </div>
+
+    <!-- Search -->
+    <form class="search-row" method="get" action="/">
+      <input type="search" name="q" value="{{ query }}" placeholder="Поиск по имени, тегам, описанию…" autocomplete="off">
+      <button class="btn btn-primary" type="submit">Найти</button>
+      {% if query or active_tag or wt or active_cat %}
+        <a class="btn" href="/">✕ Сброс</a>
+      {% endif %}
+    </form>
+
+    <!-- Tag strip -->
+    {% if active_tag %}
+    <div class="tag-strip">
+      <span style="font-size:12px;color:var(--text2)">Тег:</span>
+      <span class="tag-chip active">{{ active_tag }}</span>
+      <a href="/" class="tag-chip" style="color:var(--red)">✕ убрать</a>
+    </div>
+    {% endif %}
+
+    <!-- Grid -->
+    {% if models %}
+    <div class="cards-grid">
+      {% for m in models %}
+      <div class="card">
+        <a class="card-link" href="/model/{{ m.id }}"></a>
+        <div class="card-thumb">
+          {% if m.preview_path %}
+            <img src="{{ m.preview_url() }}" alt="{{ m.name }}" loading="lazy">
+          {% else %}
+            <div class="no-prev">
+              <span class="no-prev-icon">◈</span>нет превью
+            </div>
+          {% endif %}
+          {% if m.is_watertight %}<span class="wt-badge">✓ solid</span>{% endif %}
+        </div>
+        <div class="card-body">
+          <div class="card-name" title="{{ m.name }}">{{ m.name }}</div>
+          {% if m.bbox_x %}
+          <div class="card-dims">{{ "%.1f"|format(m.bbox_x) }}×{{ "%.1f"|format(m.bbox_y) }}×{{ "%.1f"|format(m.bbox_z) }} mm</div>
+          {% endif %}
+          <div class="card-meta">
+            {{ m.face_count|fmt_number if m.face_count else '—' }} грн
+            {% if m.file_size_kb %} · {{ "%.0f"|format(m.file_size_kb) }} KB{% endif %}
+          </div>
+          {% if m.description %}
+            <div class="card-desc">{{ m.description }}</div>
+          {% endif %}
+          {% if m.tags %}
+          <div class="card-tags">
+            {% for t in m.tag_list()[:4] %}<span class="card-tag">{{ t }}</span>{% endfor %}
+          </div>
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    {% else %}
+    <div class="empty">
+      <span class="empty-icon">◈</span>
+      {% if query or active_tag or wt or active_cat %}
+        <h2>Ничего не найдено</h2>
+        <p><a href="/">Сбросить фильтры</a></p>
+      {% else %}
+        <h2>Библиотека пуста</h2>
+        <p><a href="/upload">Загрузите файл</a> или <a href="/scan">сканируйте папку</a></p>
+      {% endif %}
+    </div>
+    {% endif %}
+  </main>
+</div>
+{% endblock %}
